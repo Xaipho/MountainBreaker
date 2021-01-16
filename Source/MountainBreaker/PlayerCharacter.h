@@ -32,8 +32,15 @@ class MOUNTAINBREAKER_API APlayerCharacter : public ACharacter
 		// Called to bind functionality to input
 		virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-		UPROPERTY(BlueprintReadOnly)
+		UPROPERTY(Editanywhere, BlueprintReadOnly)
 		bool IsAttacking = false;
+		UPROPERTY()
+		bool StartAttacking = false;
+
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UPlayerReplicator* PlayerReplicator = nullptr;
+
+		
 
 	private:
 		UFUNCTION()
@@ -45,18 +52,23 @@ class MOUNTAINBREAKER_API APlayerCharacter : public ACharacter
 		void ResetAttack();
 		void FireHammerForce();
 
+		//Components
 		UPROPERTY(EditAnywhere)
 		USphereComponent* HeadTrigger;
 		UPROPERTY(EditAnywhere)
 		URadialForceComponent* HeadRadialForce = nullptr;
 
-		UPROPERTY()
+		//Camera
+		UPROPERTY(EditAnywhere)
 		UCameraComponent* MainCamera = nullptr;
+
+		//Weapon
 		UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<AHammerActor> HammerClass;
 		UPROPERTY()
 		AHammerActor* Hammer = nullptr;
 
+		//Timers
 		UPROPERTY()
 		FTimerHandle StartAttackTimer;
 		UPROPERTY()
@@ -64,5 +76,13 @@ class MOUNTAINBREAKER_API APlayerCharacter : public ACharacter
 		UPROPERTY(EditAnywhere)
 		float AttackDuration = 0.7f;
 
+		//Default states
 		FTransform CameraStartTransform;
+
+		//Server Replication
+		UFUNCTION(Server, Reliable, WithValidation)
+		void Server_Attack();
+
+		UPROPERTY(Replicated)
+		bool ReplicatedIsAttacking = false;
 };
